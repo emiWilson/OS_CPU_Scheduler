@@ -14,7 +14,10 @@ public class Main {
 		LinkedList<Node> list = read.listBuild();
 		
 		SchedAlgorithms alg = new SchedAlgorithms(list);
+		//alg.FCFS();
+		//alg.SJF();
 		alg.Priority();
+		//alg.RR();
 
 		
 	}
@@ -58,7 +61,7 @@ class SampleReader
 		
 		int process, arrival, priority, burst;
 		LinkedList<Node> list = new LinkedList<Node>();
-		
+		System.out.println("proc" + "    " + "arr" + "    " + "prior" + "  " + "burst");
 		while(true) {
 			process = -1;
 			arrival = -1;
@@ -81,7 +84,7 @@ class SampleReader
 			list.add(next);
 
 				
-			System.out.println(process + "  " + arrival + "  " + priority + "  " + burst);
+			System.out.println(process + "       " + arrival + "       " + priority + "       " + burst);
 		}
 		//System.out.println();
 		return list;

@@ -8,13 +8,13 @@ package Analysis;
 public class PriorityQueue
 {
 	QueueItem head;
-	QueueItem rear;
+	QueueItem tail;
 	int noItems;
 
 	public PriorityQueue()
 	{
 		head = null;
-		rear = null;
+		tail = null;
 		noItems = 0;
 	}
 
@@ -34,7 +34,7 @@ public class PriorityQueue
 
 		if (head == null) {
 			head = n;
-			rear = n;
+			tail = n;
 			n.setPrev(null);
 			n.setNext(null);
 		}
@@ -102,21 +102,23 @@ public class PriorityQueue
 	
 	public Node peek()
 	{
+		if(head == null){return null;}
 		return head.getObj();
 	}
 	
-	public Node dequeue()
+	public void dequeue()
 	{
-		Node removed = rear.next.getObj();
-		
-		rear = rear.next;
-		
-		return removed;
+		System.out.println("Dequeue: Process done" + noItems);
+		if (head == null){ noItems = 0;}
+		else{
+		head = head.getPrev();
+		System.out.println(noItems + " items in queue");
+		noItems --;
+		}
 	}
-/*
+
 	public int getNoItems()
 	{
 		return noItems;
 	}
-*/
 }
