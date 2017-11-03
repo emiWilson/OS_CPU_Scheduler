@@ -117,8 +117,12 @@ public class SchedAlgorithms {
 		Node curr = list.get(i);
 		
 		
-		queue.enqueue(1, 5);
-		
+		queue.enqueue(1, 3);
+		queue.enqueue(2, 4);
+		queue.enqueue(3, 5);
+		queue.enqueue(4, 6);
+		queue.enqueue(5, 7);
+		queue.enqueue(6, 0);
 		
 		
 

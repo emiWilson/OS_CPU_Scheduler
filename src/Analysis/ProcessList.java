@@ -15,6 +15,8 @@ public class ProcessList implements Queue{
 		public Item next;
 		public int priority;
 		
+		
+		
 	}
 	
 	public ProcessList(){ }
@@ -65,11 +67,72 @@ public class ProcessList implements Queue{
 	 * Lowest priority at tail, highest priority at head
 	 * If process has same priority as process already in queue, then first come first serve.
 	 */
-	public void enqueue(int item, int priority){
+	public void enqueue(int data, int priority) {
+	    Item item = new Item();
+	    item.priority = priority;
+	    item.index = data;
+
+	    if (head == null) {
+	        head = item;
+	        item.next =  null;
+	    } else {
+	        Item next = head;
+	        Item prev = next;
+
+	        do {
+	            if (priority > next.priority) {
+	                // break and insert
+	                break;
+	            }
+	            prev = next;
+	            next = next.next;
+	        } while (next != null);
+
+	        item.next = next;
+	        if (item.priority > head.priority) {
+	            head = item;
+	        } else prev.next = item;
+	    }
+	}/*{
+		//make new item with input data
+		Item node = new Item();
+		node.index = index;
+		node.priority = priority;
 		
+		Item current = head; //current position in queue, start at tail
+		Item nextItem = head;
+	
+        //if queue is empty head = tail
+        if (total++ == 0){ 
+        	
+        	tail = head; 
+        
+        }else {
+        	nextItem = current.next;
+        	do{
+        		if (priority > nextItem.priority)
+        			break;
+        		
+        		current = nextItem;
+        		nextItem = current.next;
+        		
+        	}while(nextItem != null);
+        	
+        	node.next = current;//make sure this is inserting properly, not going to be a element short
+        	
+        }
+        
+        if (priority > head.priority){
+        	head = node;
+        }else{
+        	nextItem.next = node;
+        }
+	     
 
 		total++;
-	}
+		
+	}*/
+
     /**
      * Returns an iterator that iterates over the items in this queue in FIFO order.
      *
