@@ -48,4 +48,9 @@ public class QueueItem
 	{
 		return obj;
 	}
+	
+	public int process()
+	{
+		return getObj().process;
+	}
 }

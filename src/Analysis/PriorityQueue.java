@@ -1,20 +1,19 @@
 package Analysis;
 
-// PriorityQueue:
+//PriorityQueue:
 //
-// 		priority: int; smaller int value is higher priority
-// 		From the highest priority QueueItem to the lowest priority QueueItem
-// 		A new QueueItem will be added right after all other same priority QueueItems.
+//		priority: int; smaller int value is higher priority
+//		From the highest priority QueueItem to the lowest priority QueueItem
+//		A new QueueItem will be added right after all other same priority QueueItems.
+
 public class PriorityQueue
 {
 	QueueItem head;
-	QueueItem tail;
 	int noItems;
 
 	public PriorityQueue()
 	{
 		head = null;
-		tail = null;
 		noItems = 0;
 	}
 
@@ -34,7 +33,6 @@ public class PriorityQueue
 
 		if (head == null) {
 			head = n;
-			tail = n;
 			n.setPrev(null);
 			n.setNext(null);
 		}
@@ -70,11 +68,12 @@ public class PriorityQueue
 				n.setNext(null);
 			}
 		}
-
 		noItems++;
+		System.out.println("Item added " + noItems);
+		
 	}
 
-	public Node getQueue()
+	public Object getQueue()
 	{
 		if (noItems == 0)
 			return null;
@@ -99,6 +98,7 @@ public class PriorityQueue
 			return head.getKey();
 		}
 	}
+
 	
 	public Node peek()
 	{
@@ -108,12 +108,12 @@ public class PriorityQueue
 	
 	public void dequeue()
 	{
-		System.out.println("Dequeue: Process done" + noItems);
+		System.out.println("Dequeue: Process done");
 		if (head == null){ noItems = 0;}
 		else{
 		head = head.getPrev();
-		System.out.println(noItems + " items in queue");
 		noItems --;
+		System.out.println(noItems + " items in queue");
 		}
 	}
 
@@ -121,4 +121,5 @@ public class PriorityQueue
 	{
 		return noItems;
 	}
+	
 }

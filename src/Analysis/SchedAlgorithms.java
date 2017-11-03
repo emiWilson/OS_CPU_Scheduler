@@ -2,7 +2,13 @@ package Analysis;
 
 import java.io.*;
 import java.util.*;
-
+/**
+ * Need to get priority queue to run last of the processes
+ * Need to get RR to stop acting funny. 
+ * Maybe using PCB?
+ * @author emily
+ *
+ */
 public class SchedAlgorithms {
 	
 	LinkedList<Node> list;
@@ -10,6 +16,7 @@ public class SchedAlgorithms {
 	static int [] avgWait = new int [totalTime / 600]; //there are 600 seconds in ten minutes
 	static int [] avgTurnaround = new int [totalTime /600];
 	static PriorityQueue waitLine = new PriorityQueue();
+	static ProcessList queue = new ProcessList();
 	
 	public SchedAlgorithms(LinkedList<Node> input){
 		list = input;
@@ -96,105 +103,66 @@ public class SchedAlgorithms {
 	public void Priority(){
 		//list is already sorted in order of arrival time
 		
-		
 		Node first = list.get(0);
 		first.setIndex(0);
-		waitLine.putQueue(first, first.priority);
-
+		//waitLine.putQueue(first, first.priority);
+		//queue.enqueue(0, first.priority);
 		
 		int currentTime = 0;
 		
 		int i = 1;
 		int count = 0; //count of how many processes have been 
 		int tenMinInt = 0;
-		Node curr;
+		int index = i;
+		Node curr = list.get(i);
 		
 		
-		while (i < list.size()){
-			curr = waitLine.peek(); // currently running process
-			System.out.print(currentTime + " and the process is ");
-			
+		queue.enqueue(1, 5);
+		
+		
+		
+
+		/*while (i < list.size()){
+			//curr = waitLine.peek(); // currently running process
+			index = queue.peek();
+			curr = list.get(index);
+			System.out.println("It is" + queue.toString());
 			//determine if process is finished running, if so start next process in queue
 			curr = nextProcess(curr, currentTime);
+		
 			
 			Node item = list.get(i); //next process arriving to CPU
 			item.setIndex(i);
-			
+			System.out.println(queue.toString());
 			if(item.arrival <= currentTime){ 
-				System.out.println("Add item to queue " + i);
-				//put item at the end of queue
-				waitLine.putQueue(item, item.priority);
-			
-				if(curr != null){
-					if (item.priority >= curr.priority){
-						swap(curr.index, item.index);
-					}
-				}
+				//put item in queue
+				//waitLine.putQueue(item, item.priority);
+				queue.enqueue(i, item.priority);
 				
 				i++; //get next element in next traversal of while loop
 			}
-			
-			if(curr!=null){curr.addTimeRan(); System.out.println("Decrement run time");} //adjust node curr for running a timestep
+			System.out.println(queue.toString());
+			if(curr!=null){curr.addTimeRan();} //adjust node curr for running a timestep
 			currentTime ++; //increment currentTime
 			
 			
-		}
+		}*/
+		System.out.println(queue.toString());
+		System.out.println(queue.size());
+		System.out.println(queue.dequeue());
 		
-		curr = waitLine.peek();
-		
-		while(waitLine.getNoItems() > 1){
-			System.out.println(waitLine.getNoItems());
-			
-			if(curr != null){
-				curr.addTimeRan();
-				}else{
-					System.out.println("Hmm whats wrong");
-					waitLine.dequeue();
-					}
-			
-			curr = nextProcess(curr, currentTime);
-			
-			currentTime ++;
-			
-			System.out.println(waitLine.getNoItems());
-		}
-		
-		//need something to finish up the processes that are in the queue
-		/*int itemsLeft = waitLine.getNoItems();
-		System.out.println("Items left " + itemsLeft);
-		curr = waitLine.peek();
-		while (itemsLeft != 0){
-			curr = nextProcess(curr, currentTime);
-			currentTime++;
-			itemsLeft = waitLine.getNoItems();
-			/*curr = waitLine.peek();
-			if(curr == null){itemsLeft=0;}
-			else{
-			int timeLeft = curr.runTimeLeft;
-			currentTime += timeLeft;
+		/*while((index = queue.dequeue()) != -1){
+			curr = list.get(index);
+			currentTime += curr.runTimeLeft;
 			curr.completionTime(currentTime);
-			waitLine.dequeue();
 			
-			itemsLeft = waitLine.getNoItems();
-			System.out.print("itemsLeft " + itemsLeft);
-			}*/
-		//}
-		/*curr = waitLine.peek();
+			System.out.println(curr.timeCompleted);
 		
-		while(curr != null){
-
-			int timeLeft = curr.runTimeLeft; //time left for current process to finish running
-			curr.doneRunning();
-			currentTime += timeLeft; //jump to time that running process finishes runnint (note: don't have to worry about
-			//preemption, all processes are in order of priority in queue at this point)
-			curr = nextProcess(curr, currentTime);
-			if (curr != null){System.out.println(curr.process + " Is the process ID");}
-			System.out.println(waitLine.getNoItems());
-		}
-		System.out.println(waitLine.getNoItems());*/
+		}*/
+		
 		print();	
 		
-		
+		System.out.println("huh");
 	}
 	/**
 	 * If currently running process is finished running then start new process, else continue running current process
@@ -210,11 +178,13 @@ public class SchedAlgorithms {
 			//System.out.println("Next process please");
 			//current process is done running
 			current.completionTime(currentTime); //give it the time it finished running
-			waitLine.dequeue(); //remove running item from the priority queue
-		 
+			//waitLine.dequeue(); //remove running item from the priority queue
+			queue.dequeue();
 			
 			//start next process if process waiting
-			current = waitLine.peek(); //get next element
+			//current = waitLine.peek(); //get next element
+			current = list.get( queue.peek() );
+			
 			
 			if (current != null){current.startTime(currentTime);} //set start time of process
 		
@@ -270,7 +240,7 @@ public class SchedAlgorithms {
 		int timeSlice = 1; //time before switching to next process
 		int currentTime = 0;
 		LinkedList<Node> RR = list;
-		
+
 		while(RR.size() != 0){
 			
 			int i = 0;
@@ -285,13 +255,13 @@ public class SchedAlgorithms {
 				
 				currentTime++;
 			}
-	
+	//maybe need ot make sure main list is being updated. Maybe just move removed elements to another list, or have a marker that says if the task has been completed or not.
 			
 		}
 		
 		System.out.println("Round Robin completed!");
 		print();
-
+		System.out.println("Done printing");
 	}
 	/*
 	 * Finds next process that has not been completed
@@ -325,7 +295,7 @@ public class SchedAlgorithms {
 	public void print(){
 		for(int i = 0; i < list.size(); i++){
 			Node node = list.get(i);
-			System.out.println(node.process + "   " + node.arrival + "    " + node.priority + "    " + node.burst + "    " + node.timeStarted + "  " + node.timeCompleted);
+			System.out.println(node.process + "   " + node.arrival + "    " + node.priority + "    " + node.burst + "    " + node.timeCompleted);
 		}
 	}
 }
