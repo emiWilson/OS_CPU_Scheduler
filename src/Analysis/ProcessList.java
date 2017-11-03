@@ -40,8 +40,9 @@ public class ProcessList implements Queue{
 	   
 	}
 	
-	public Item peek(){
-		return head;
+	public int getIndex(){
+		if(head == null){return 0;}
+		return head.index;
 	}
 	
 	public int dequeue(){
@@ -67,12 +68,15 @@ public class ProcessList implements Queue{
 	 * Lowest priority at tail, highest priority at head
 	 * If process has same priority as process already in queue, then first come first serve.
 	 */
+	//original code from stack overflow: https://stackoverflow.com/questions/40635584/insert-method-for-priority-queue-using-linked-lists
 	public void enqueue(int data, int priority) {
-	    Item item = new Item();
+	    //make new item with data
+		Item item = new Item();
 	    item.priority = priority;
 	    item.index = data;
 
-	    if (head == null) {
+	  
+	    if (isEmpty()) {
 	        head = item;
 	        item.next =  null;
 	    } else {
@@ -80,7 +84,7 @@ public class ProcessList implements Queue{
 	        Item prev = next;
 
 	        do {
-	            if (priority > next.priority) {
+	            if (priority < next.priority) { //if priority is less than 
 	                // break and insert
 	                break;
 	            }
@@ -89,50 +93,12 @@ public class ProcessList implements Queue{
 	        } while (next != null);
 
 	        item.next = next;
-	        if (item.priority > head.priority) {
+	        if (item.priority < head.priority) {
 	            head = item;
 	        } else prev.next = item;
 	    }
-	}/*{
-		//make new item with input data
-		Item node = new Item();
-		node.index = index;
-		node.priority = priority;
-		
-		Item current = head; //current position in queue, start at tail
-		Item nextItem = head;
-	
-        //if queue is empty head = tail
-        if (total++ == 0){ 
-        	
-        	tail = head; 
-        
-        }else {
-        	nextItem = current.next;
-        	do{
-        		if (priority > nextItem.priority)
-        			break;
-        		
-        		current = nextItem;
-        		nextItem = current.next;
-        		
-        	}while(nextItem != null);
-        	
-        	node.next = current;//make sure this is inserting properly, not going to be a element short
-        	
-        }
-        
-        if (priority > head.priority){
-        	head = node;
-        }else{
-        	nextItem.next = node;
-        }
-	     
-
-		total++;
-		
-	}*/
-
+	    total ++;
+	}
     /**
      * Returns an iterator that iterates over the items in this queue in FIFO order.
      *

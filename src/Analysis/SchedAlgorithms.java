@@ -117,18 +117,9 @@ public class SchedAlgorithms {
 		Node curr = list.get(i);
 		
 		
-		queue.enqueue(1, 3);
-		queue.enqueue(2, 4);
-		queue.enqueue(3, 5);
-		queue.enqueue(4, 6);
-		queue.enqueue(5, 7);
-		queue.enqueue(6, 0);
-		
-		
-
-		/*while (i < list.size()){
+		while (i < list.size()){
 			//curr = waitLine.peek(); // currently running process
-			index = queue.peek();
+			
 			curr = list.get(index);
 			System.out.println("It is" + queue.toString());
 			//determine if process is finished running, if so start next process in queue
@@ -137,7 +128,7 @@ public class SchedAlgorithms {
 			
 			Node item = list.get(i); //next process arriving to CPU
 			item.setIndex(i);
-			System.out.println(queue.toString());
+			
 			if(item.arrival <= currentTime){ 
 				//put item in queue
 				//waitLine.putQueue(item, item.priority);
@@ -145,24 +136,25 @@ public class SchedAlgorithms {
 				
 				i++; //get next element in next traversal of while loop
 			}
-			System.out.println(queue.toString());
+			
 			if(curr!=null){curr.addTimeRan();} //adjust node curr for running a timestep
 			currentTime ++; //increment currentTime
+			index = queue.getIndex();
 			
-			
-		}*/
+		}
 		System.out.println(queue.toString());
-		System.out.println(queue.size());
 		System.out.println(queue.dequeue());
+		System.out.println(queue.toString());
 		
-		/*while((index = queue.dequeue()) != -1){
+		while((index = queue.dequeue()) != -1){
 			curr = list.get(index);
 			currentTime += curr.runTimeLeft;
 			curr.completionTime(currentTime);
 			
 			System.out.println(curr.timeCompleted);
 		
-		}*/
+		}
+		
 		
 		print();	
 		
@@ -187,7 +179,7 @@ public class SchedAlgorithms {
 			
 			//start next process if process waiting
 			//current = waitLine.peek(); //get next element
-			current = list.get( queue.peek() );
+			current = list.get( queue.getIndex() );
 			
 			
 			if (current != null){current.startTime(currentTime);} //set start time of process
