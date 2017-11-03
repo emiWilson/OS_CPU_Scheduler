@@ -15,9 +15,10 @@ public class Main {
 		
 		SchedAlgorithms alg = new SchedAlgorithms(list);
 		//alg.FCFS();
-		//alg.SJF();
-		alg.Priority();
+		alg.SJF();
+		//alg.Priority();
 		//alg.RR();
+		//alg.analysis();
 
 		
 	}

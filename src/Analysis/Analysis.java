@@ -41,8 +41,9 @@ public class Analysis {
 	 */
 	public void avgCalc(){
 		int ten = 600000; // number of ms in 10 minutes
-		turn = new int[(list.size() / ten) + 1]; //may be able to get rid of the +1
-		wait = new int[(list.size() / ten) + 1];
+		int hour = 3600000;
+		turn = new int[(hour / ten)]; 
+		wait = new int[(hour / ten)];
 		
 		int j = 0; //index in arrays turn and wait
 		int counter = 0; //number of processes in a given interval
@@ -58,14 +59,17 @@ public class Analysis {
 				counter++;
 			}
 			
-			if(list.get(i + 1).timeCompleted > j*3600){
-				turn[j] = turn[j] / counter ;
-				wait[j] = wait[j] /counter;
+			if(list.get(i).timeCompleted > j*3600){
+				if(counter != 0){
+					turn[j] = turn[j]/counter;
+					wait[j] = wait[j]/counter;
+				}
 				counter = 0; //reset counter to 0 for next 10 minute interval
 			}
 			
 			
 		}
+			
 		
 	}
 	/**

@@ -40,6 +40,9 @@ public class Node {
 		public void addTimeRan(){
 			runTimeLeft--;	
 		}
+		public void addTimeRan(int time){
+			runTimeLeft -= time;
+		}
 		public void doneRunning(){
 			runTimeLeft = 0;
 		}

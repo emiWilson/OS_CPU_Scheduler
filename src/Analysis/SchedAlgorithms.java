@@ -17,6 +17,7 @@ public class SchedAlgorithms {
 	static int [] avgTurnaround = new int [totalTime /600];
 	static PriorityQueue waitLine = new PriorityQueue();
 	static ProcessList queue = new ProcessList();
+	static Analysis analyze;
 	
 	public SchedAlgorithms(LinkedList<Node> input){
 		list = input;
@@ -28,25 +29,7 @@ public class SchedAlgorithms {
 	 * arrival time from first to arrive to last to arrive
 	 */
 	public void FCFS(){
-		//already in sorted order of arrival, so this shouldn't do anything, but just incase!
-		/*for (int i = (list.size() -1); i >= 0; i--)
-		{
-			for (int j = 1; j <= i; j++)
-			{
-				Node node1 = list.get(j - 1);
-				Node node2 = list.get(j);
-				int arr1 = node1.arrival;
-				int arr2 = node2.arrival;
-				//System.out.println(arr1 + ":" +  arr2);
-				if (arr1 > arr2)
-					System.out.println("swap me!");
-					swap(j - 1, j);
-				
-			}
-		}*/
-		
 		run();
-		print();
 	}
 	/**
 	 * Shortest Job first without preemption
@@ -73,7 +56,6 @@ public class SchedAlgorithms {
 			
 		}
 		run();
-		print();
 		
 	}
 	/**
@@ -83,7 +65,7 @@ public class SchedAlgorithms {
 	public void run(){
 		int currentTime = 0;
 		
-		for (int i = 1; i < list.size(); i++){
+		for (int i = 0; i < list.size(); i++){
 			Node m = list.get(i);
 			m.startTime(currentTime);
 			if (m.arrival >= currentTime ){
@@ -102,11 +84,9 @@ public class SchedAlgorithms {
 	 */
 	public void Priority(){
 		//list is already sorted in order of arrival time
-		
 		Node first = list.get(0);
 		first.setIndex(0);
-		//waitLine.putQueue(first, first.priority);
-		//queue.enqueue(0, first.priority);
+	
 		
 		int currentTime = 0;
 		
@@ -118,10 +98,9 @@ public class SchedAlgorithms {
 		
 		
 		while (i < list.size()){
-			//curr = waitLine.peek(); // currently running process
 			
 			curr = list.get(index);
-			System.out.println("It is" + queue.toString());
+			
 			//determine if process is finished running, if so start next process in queue
 			curr = nextProcess(curr, currentTime);
 		
@@ -142,23 +121,20 @@ public class SchedAlgorithms {
 			index = queue.getIndex();
 			
 		}
-		System.out.println(queue.toString());
-		System.out.println(queue.dequeue());
-		System.out.println(queue.toString());
+
 		
-		while((index = queue.dequeue()) != -1){
+		while(queue.size()!= 0){
+			index = queue.dequeue();
 			curr = list.get(index);
 			currentTime += curr.runTimeLeft;
 			curr.completionTime(currentTime);
 			
-			System.out.println(curr.timeCompleted);
 		
 		}
 		
 		
-		print();	
 		
-		System.out.println("huh");
+	
 	}
 	/**
 	 * If currently running process is finished running then start new process, else continue running current process
@@ -170,7 +146,6 @@ public class SchedAlgorithms {
 	public Node nextProcess(Node current, int currentTime){
 		if (current != null){
 		 if(current.runTimeLeft == 0){
-			 System.out.println(current.runTimeLeft);
 			//System.out.println("Next process please");
 			//current process is done running
 			current.completionTime(currentTime); //give it the time it finished running
@@ -189,91 +164,47 @@ public class SchedAlgorithms {
 		
 		return current;
 		
-		
 	}
-	
-	public void runLastOfQueue(int currentTime){
-		int itemsLeft = waitLine.getNoItems();
-		System.out.println("Items left " + itemsLeft);
-		
-		Node curr = waitLine.peek();
-		
-		while(curr != null){
-
-			int timeLeft = curr.runTimeLeft; //time left for current process to finish running
-			currentTime += timeLeft; //jump to time that running process finishes runnint (note: don't have to worry about
-			//preemption, all processes are in order of priority in queue at this point)
-			curr.completionTime(currentTime); //set completion time of process
-			waitLine.dequeue(); //get next process of next priority
-			curr = waitLine.peek();
-			System.out.println(curr.process + " Is the process ID");
-			System.out.println(waitLine.getNoItems());
-			itemsLeft --;
-		}
-		/*while (itemsLeft != 0){
-			curr = nextProcess(curr, currentTime);
-			currentTime++;
-			itemsLeft = waitLine.getNoItems();
-			curr = waitLine.peek();
-			if(curr == null){itemsLeft=0;}
-			else{
-			int timeLeft = curr.runTimeLeft;
-			currentTime += timeLeft;
-			curr.completionTime(currentTime);
-			waitLine.dequeue();
-			
-			itemsLeft = waitLine.getNoItems();
-			System.out.print("itemsLeft " + itemsLeft);
-			}
-		}*/
+	/**
+	 * Round robin if not time quantum is specified, default time quantum is 1.
+	 */
+	public void RR(){
+		int defaultTimeQuantum = 1;
+		RR(defaultTimeQuantum);
 	}
 	
 	/**
-	 * Round Robin without preemption
+	 * Round robin CPU scheduling algorithm without preemption.
+	 * @param timeQuantum the time before switching to next process
 	 */
-	public void RR(){
+	public void RR(int timeQuantum){
 		//the linked list "list" is already sorted in terms of arrival time
-		int timeSlice = 1; //time before switching to next process
-		int currentTime = 0;
-		LinkedList<Node> RR = list;
+		
 
-		while(RR.size() != 0){
-			
-			int i = 0;
-			
-			while(i < RR.size()){
-				Node node = RR.get(i);
-				node.addTimeRan();
-				
-				if(node.runTimeLeft == 0 )
-					node.completionTime(currentTime); //set the time process is completed to the the current time
-					RR.remove(i); //remove node from Round Robin linked list RR
-				
-				currentTime++;
-			}
-	//maybe need ot make sure main list is being updated. Maybe just move removed elements to another list, or have a marker that says if the task has been completed or not.
-			
+		Node curr;
+		
+		
+		for (int i = 0; i < list.size(); i++){
+			queue.enqueue(i);
 		}
 		
-		System.out.println("Round Robin completed!");
-		print();
-		System.out.println("Done printing");
+		int currentTime = timeQuantum; //set the current time to check if first process needs to be switched
+
+		while(queue.size()!=0){ //while there are processes in queue
+			int elem = queue.dequeue(); //index of first process
+			curr = list.get(elem); //get first process in list
+			curr.addTimeRan(timeQuantum); //increment run time of currently running process by the timeQuantum
+			
+			if(curr.runTimeLeft > 0) //if process is not finsihed running yet.
+				queue.enqueue(elem); //add item back into queue
+			else {
+				curr.completionTime(currentTime); //if process is done running, stamp with completion time
+			}
+			currentTime  += timeQuantum; //increment counter by the time Quantum
+			
+		}
+
 	}
-	/*
-	 * Finds next process that has not been completed
-	 */
-	public Node next(int i){
-		if(list.get(i + 1) == null){ return null;}
-		
-		Node node = list.get(i + 1); //get node at index i
-		
-		if (node.runTimeLeft == 0){ next(i + 1);} //recursively call next node if process is already finished running
-		
-		
-		return node; //return node that still has some running time left (runTimeLeft != null)
-		
-	}
-	
 	
 	/*
 	 * Swaps the index of two nodes in the linked list "list"
@@ -289,9 +220,37 @@ public class SchedAlgorithms {
 	}
 	
 	public void print(){
+		
+			System.out.println("\n\nproc   arr      prior    burst   end");
 		for(int i = 0; i < list.size(); i++){
 			Node node = list.get(i);
-			System.out.println(node.process + "   " + node.arrival + "    " + node.priority + "    " + node.burst + "    " + node.timeCompleted);
+			System.out.println(node.process + "       " + node.arrival + "        " + node.priority + "       " + node.burst + "      " + node.timeCompleted);
+		}
+	}
+	
+	public LinkedList<Node> returnList(){
+		return list;
+	}
+	
+	public void Analyze(){
+		analyze = new Analysis(list);
+	}
+	
+	public int [] TurnData(){
+		return analyze.getTurn();
+	}
+	
+	public int [] waitData(){
+		return analyze.getWait();
+	}
+	
+	public void analysis(){
+		Analyze();
+		int [] turn = TurnData();
+		int [] wait = waitData();
+		
+		for(int i = 0; i < turn.length; i++ ){
+			System.out.println(turn[i] + " ");
 		}
 	}
 }

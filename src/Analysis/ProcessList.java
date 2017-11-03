@@ -99,16 +99,6 @@ public class ProcessList implements Queue{
 	    }
 	    total ++;
 	}
-    /**
-     * Returns an iterator that iterates over the items in this queue in FIFO order.
-     *
-     * @return an iterator that iterates over the items in this queue in FIFO order
-     */
-    public Iterator<Item> iterator()  {
-        return new ListIterator<Item>(head);  
-    }
-
-	
 
     public String toString()
     {
