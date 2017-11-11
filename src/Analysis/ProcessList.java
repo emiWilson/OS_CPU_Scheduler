@@ -39,7 +39,9 @@ public class ProcessList implements Queue{
 	      
 	   
 	}
-	
+	public Item peek(){
+		return head;
+	}
 	public int getIndex(){
 		if(head == null){return 0;}
 		return head.index;
@@ -52,6 +54,7 @@ public class ProcessList implements Queue{
 	        if (--total == 0) tail = null;
 	        return ele;
 	}
+
 	
 	public int size(){
 		return total;
