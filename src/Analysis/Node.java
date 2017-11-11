@@ -51,7 +51,7 @@ public class Node {
 		}
 		
 		public void waitTime(){
-			wait = turnaround - burst;
+			wait = timeStarted - arrival;
 		}
 		
 

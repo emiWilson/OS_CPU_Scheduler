@@ -42,34 +42,37 @@ public class Analysis {
 	public void avgCalc(){
 		int ten = 600000; // number of ms in 10 minutes
 		int hour = 3600000;
-		turn = new int[(hour / ten)]; 
-		wait = new int[(hour / ten)];
 		
-		int j = 0; //index in arrays turn and wait
-		int counter = 0; //number of processes in a given interval
-		/*******************
-		 * Need to work on this part, may be off!
-		 */
-		for (int i = 0; i < list.size(); i++){
-			Node node = list.get(i);
+		int count = 0;
+		
+		
+		turn = new int [6]; //average turn around time for each 10 minute interval in a hour
+		wait = new int [6]; //average wait time for 10 minute intervals
+		
+		int j = 0;
+		
+		for(int i = 0; i < list.size(); i++){ //for all processes
 			
-			if(node.timeCompleted <= j*3600){
-				turn[j] += node.turnaround;
-				wait[j] += node.wait;
-				counter++;
-			}
-			
-			if(list.get(i).timeCompleted > j*3600){
-				if(counter != 0){
-					turn[j] = turn[j]/counter;
-					wait[j] = wait[j]/counter;
+			Node item = list.get(i);
+			if(item.timeCompleted > (j +1) * ten){
+				if (count != 0){
+					turn[j] = turn[j] / count; //divide element by the number of counts
+					wait[j] = wait[j] / count;
 				}
-				counter = 0; //reset counter to 0 for next 10 minute interval
+				j++;
+				turn[j] = 0;
+				wait[j] = 0;
+				
 			}
+			turn[j] += item.turnaround;
+			wait[j] += item.wait;
 			
-			
-		}
-			
+			count ++;
+ 		}
+		
+		
+		
+		
 		
 	}
 	/**

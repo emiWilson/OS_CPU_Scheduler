@@ -84,50 +84,62 @@ public class SchedAlgorithms {
 	 */
 	public void Priority(){
 		//list is already sorted in order of arrival time
-		Node first = list.get(0);
-		first.setIndex(0);
-	
 		
 		int currentTime = 0;
 		
-		int i = 1;
-		int count = 0; //count of how many processes have been 
-		int tenMinInt = 0;
-		int index = i;
-		Node curr = list.get(i);
+		int i = 0; //index of arriving process
+		int iRun = i; //index of process running
 		
+		Node curr = list.get(i); //get first process
+		currentTime += curr.arrival;
+		curr.startTime(currentTime); //give the first process a running time
 		
 		while (i < list.size()){
 			
-			curr = list.get(index);
-			
+			curr = list.get(iRun); //node currently running
+			System.out.println("At beg. " + curr.process +  " and time " + currentTime);
 			//determine if process is finished running, if so start next process in queue
-			curr = nextProcess(curr, currentTime);
+			System.out.println(curr.process + " has time left " + curr.runTimeLeft);
+			
+			curr = nextProcess(curr, currentTime); //get next process if one currently running is done
 		
 			
 			Node item = list.get(i); //next process arriving to CPU
 			item.setIndex(i);
 			
-			if(item.arrival <= currentTime){ 
+			if(item.arrival < currentTime){ //see if item is arriving before the current time
 				//put item in queue
 				//waitLine.putQueue(item, item.priority);
+				System.out.println(item.process + "is in the loop");
 				queue.enqueue(i, item.priority);
 				
 				i++; //get next element in next traversal of while loop
 			}
 			
 			if(curr!=null){curr.addTimeRan();} //adjust node curr for running a timestep
+			
 			currentTime ++; //increment currentTime
-			index = queue.getIndex();
+			
+			iRun = queue.getIndex();
+			
+			System.out.println(curr.process + " has time left " + curr.runTimeLeft);
+			System.out.println(queue.toString());
+			System.out.println("At end" + curr.process);
 			
 		}
 
 		
 		while(queue.size()!= 0){
-			index = queue.dequeue();
-			curr = list.get(index);
+			iRun = queue.dequeue();
+			curr = list.get(iRun);
+			
+			curr.startTime(currentTime); //set start time for process with index iRun
+			
 			currentTime += curr.runTimeLeft;
-			curr.completionTime(currentTime);
+			
+			curr.completionTime(currentTime); //set end time for process with index iRun
+			
+			System.out.println(curr.process + " has time left " + curr.runTimeLeft);
 			
 		
 		}
@@ -144,25 +156,33 @@ public class SchedAlgorithms {
 	 * current process is completed running
 	 */
 	public Node nextProcess(Node current, int currentTime){
+		Node next = current;
+		
 		if (current != null){
-		 if(current.runTimeLeft == 0){
-			//System.out.println("Next process please");
+			if (current.runTimeLeft == 0){
+			System.out.println("Next process please *********" + current.runTimeLeft);
 			//current process is done running
-			current.completionTime(currentTime); //give it the time it finished running
+			current.completionTime(currentTime); //give it the time it finished runnining
 			//waitLine.dequeue(); //remove running item from the priority queue
+			System.out.println("My queue is " + queue.toString());
 			queue.dequeue();
 			
+			System.out.println(queue.toString());
 			//start next process if process waiting
 			//current = waitLine.peek(); //get next element
-			current = list.get( queue.getIndex() );
+			next = list.get(queue.getIndex());
 			
+			if(next.process == current.process){
+				System.out.println("Same process!!!!!!!!!");
+			}
 			
-			if (current != null){current.startTime(currentTime);} //set start time of process
-		
-		 }
+			next.startTime(currentTime); //set start time of process
+			System.out.println("******* now running process " + next.process + " has time left " + next.runTimeLeft);
+			}
+		 
 		}
 		
-		return current;
+		return next;
 		
 	}
 	/**
@@ -221,10 +241,10 @@ public class SchedAlgorithms {
 	
 	public void print(){
 		
-			System.out.println("\n\nproc   arr      prior    burst   end");
+			System.out.println("\n\nproc     arr      prior      burst        end     turnaround   wait    start ");
 		for(int i = 0; i < list.size(); i++){
 			Node node = list.get(i);
-			System.out.println(node.process + "       " + node.arrival + "        " + node.priority + "       " + node.burst + "      " + node.timeCompleted);
+			System.out.println(node.process + "       " + node.arrival + "        " + node.priority + "       " + node.burst + "      " + node.timeCompleted + "     " + node.turnaround + "   " + node.wait + "   " + node.timeStarted );
 		}
 	}
 	
@@ -249,9 +269,16 @@ public class SchedAlgorithms {
 		int [] turn = TurnData();
 		int [] wait = waitData();
 		
-		for(int i = 0; i < turn.length; i++ ){
-			System.out.println(turn[i] + " ");
+		System.out.println("Average turnaround time");
+		for (int i = 0; i < turn.length; i++){
+			System.out.print(turn[i] + " ");
 		}
+		
+		System.out.println("\nAverage wait time");
+		for (int i = 0; i < wait.length; i ++){
+			System.out.print(wait[i] + " ");
+		}
+		
 	}
 }
 
