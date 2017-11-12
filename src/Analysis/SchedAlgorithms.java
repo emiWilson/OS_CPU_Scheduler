@@ -4,13 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import Analysis.ProcessList.Item;
-/**
- * Need to get priority queue to run last of the processes
- * Need to get RR to stop acting funny. 
- * Maybe using PCB?
- * @author emily
- *
- */
+
 public class SchedAlgorithms {
 	
 	LinkedList<Node> list;
@@ -31,7 +25,23 @@ public class SchedAlgorithms {
 	 * arrival time from first to arrive to last to arrive
 	 */
 	public void FCFS(){
-		run();
+		int currentTime = 0; //current time the CPU is at
+		Node m = list.get(0); //get first arriving process
+		currentTime = m.arrival; //jump current time to arrival of the first process
+		
+		for (int i = 0; i < list.size(); i++){ //for all items in list
+			m = list.get(i);
+			m.startTime(currentTime);
+			if (m.arrival <= currentTime ){
+				//if next process has already arrived
+				currentTime += m.burst;
+			}else{
+				//if next process hasn't arrived yet
+				currentTime = m.arrival + m.burst; 
+			}
+			m.completionTime(currentTime);
+			
+		}
 	}
 	/**
 	 * Shortest Job first without preemption
@@ -40,47 +50,42 @@ public class SchedAlgorithms {
 	 * calculate the run time and wait time for 10 minute intervals of this algorithm.
 	 */
 	public void SJF(){
+		int CPUtime = 0; //timestep the CPU is at
 		
-		for (int i = (list.size() - 1); i >= 0; i--)
-		{
-			for (int j = 1; j <= i; j++)
-			{
-				Node node1 = list.get(j-1);
-				Node node2 = list.get(j);
-				
-				int burst1 = node1.burst;
-				int burst2 = node2.burst;
-				
-				if(burst1 > burst2)
-					swap(j-1, j);
-						
-			}
-			
-		}
-		run();
+		Node item = list.get(0);
+		queue.enqueue(0, item.burst); //add item to priority queue, where priority is the burst time
+		CPUtime += item.arrival; //jump start time to the arrival of the first process
 		
-	}
-	/**
-	 * This algorithm is used to run the FCFS and SJF CPU scheduling algorithms.
-	 * Each process will run to completion before the next process is called.
-	 */
-	public void run(){
-		int currentTime = 0;
+		int currIndex; //index of currently running process
+		Node curr = null; //node of currently running process
+		int i = 1; //index in list of next arriving processes
 		
-		for (int i = 0; i < list.size(); i++){
-			Node m = list.get(i);
-			m.startTime(currentTime);
-			if (m.arrival >= currentTime ){
-				//if next process has already arrived
-				currentTime += m.burst;
+		while(i < list.size()){
+			if(queue.size() != 0){
+				currIndex = queue.dequeue(); //get next shortest process to run until completion
+				curr = list.get(currIndex);
+				curr.startTime(CPUtime);
+				//run curr until completion (no -preemption)
+				CPUtime += curr.runTimeLeft; //increment CPU time by the amount of time the currently running process takes to run
+				curr.completionTime(CPUtime); //give curr it's completion time
 			}else{
-				//if next process hasn't arrived yet
-				currentTime += m.arrival + m.burst; 
+				CPUtime ++;
 			}
-			m.completionTime(currentTime);
+			
+			item = list.get(i);
+			//now add items to priority queue
+			while((item.arrival <= CPUtime) && (i < list.size())){
+				queue.enqueue(i, item.burst);
+				item = list.get(i);
+				i++;
+			}
 			
 		}
+		
+		finishQueue(CPUtime, curr);
+		
 	}
+
 	/**
 	 * Priority with preemption (for single thread CPU)
 	 */
@@ -119,10 +124,9 @@ public class SchedAlgorithms {
 	
 			if(item.arrival == CPUtime){ //see if item is arriving after or at the current time
 				//put item in queue
-				//System.out.println("item added but too early " + CPUtime + " process item " + item.index + " and current is " + curr.index);
+	
 
 				queue.enqueue(i, item.priority);
-				System.out.println("Queue size " + queue.size());
 				i++; //get next element in next traversal of while loop
 				
 				if(curr == null){
@@ -143,28 +147,9 @@ public class SchedAlgorithms {
 			
 			
 		}
-		System.out.println("In Queue" + queue.toString());
 		//finish any processes still in queue
-		while(queue.size() != 0){
-			i = queue.dequeue(); //get index of next process that needs to run
-			curr = list.get(i); //get the node of the next process that needs to run
-			
-			if(curr.timeStarted != -1){ //if process has not yet been started 
-				curr.startTime(CPUtime); //set start time for process i
-			}
-			
-			CPUtime += curr.runTimeLeft; //increment the CPU by the time the current process needs to run
-			
-			curr.completionTime(CPUtime); //set end time for process with index iRun
-			
-			System.out.println(curr.process + " has time left " + curr.runTimeLeft);
-			
-		
-		}
-	
-	//curr = list.get(2);	
-	//System.out.println(curr.process +"    "+ curr.arrival +"    "+ curr.timeStarted);
-	//System.out.println("Queue is: "+ queue.toString());
+		finishQueue(CPUtime, curr);
+
 	
 	}
 	/**
@@ -186,7 +171,6 @@ public class SchedAlgorithms {
 				next = list.get(index); //find node with index
 				//if the node has not already been started
 				if(next.timeStarted == -1){
-					System.out.println("Give start time");
 					next.startTime(currentTime); //set start time of process if haven't been started previously
 				}
 			}else{ //if size of queue is 0
@@ -210,35 +194,73 @@ public class SchedAlgorithms {
 	
 	/**
 	 * Round robin CPU scheduling algorithm without preemption.
-	 * @param timeQuantum the time before switching to next process
+	 * @param timeQuantum the time steps before switching to next process
 	 */
 	public void RR(int timeQuantum){
 		//the linked list "list" is already sorted in terms of arrival time
 		
 
-		Node curr;
+		Node curr = null;
 		
+		int CPUtime = timeQuantum; //set the current time to check if first process needs to be switched
 		
-		for (int i = 0; i < list.size(); i++){
-			queue.enqueue(i);
-		}
+		int i = 0; //index of next element in list
 		
-		int currentTime = timeQuantum; //set the current time to check if first process needs to be switched
-
-		while(queue.size()!=0){ //while there are processes in queue
-			int elem = queue.dequeue(); //index of first process
-			curr = list.get(elem); //get first process in list
-			curr.addTimeRan(timeQuantum); //increment run time of currently running process by the timeQuantum
+		while(i < list.size()){ //while there are processes in the list
 			
-			if(curr.runTimeLeft > 0) //if process is not finsihed running yet.
-				queue.enqueue(elem); //add item back into queue
-			else {
-				curr.completionTime(currentTime); //if process is done running, stamp with completion time
+			
+			Node item = list.get(i); //get item with index i
+			
+			if (item.arrival == CPUtime){
+				//get next element in list
+				queue.enqueue(i);
+				i++;
 			}
-			currentTime  += timeQuantum; //increment counter by the time Quantum
+
+			
+			int elem = queue.dequeue(); //index of first process
+			
+			//if there is a process in queue
+			if(elem != -1){
+				curr = list.get(elem); //get first process in list
+			
+				//if the node has not already been started
+				if(curr.timeStarted == -1){
+					curr.startTime(CPUtime); //set start time of process if haven't been started previously
+				}
+			
+				curr.addTimeRan(timeQuantum); //increment run time of currently running process by the timeQuantum
+			
+				if(curr.runTimeLeft > 0) //if process is not finsihed running yet.
+					queue.enqueue(elem); //add item back into queue
+				else {
+				curr.completionTime(CPUtime); //if process is done running, stamp with completion time
+				}
+			}
+			CPUtime  += timeQuantum; //increment counter by the time Quantum
 			
 		}
+		//finish any processes still in queue
+		finishQueue(CPUtime, curr);
 
+	}
+	
+	public void finishQueue(int CPUtime, Node curr){
+		int i;		
+		//finish any processes still in queue
+				while(queue.size() != 0){
+					i = queue.dequeue(); //get index of next process that needs to run
+					curr = list.get(i); //get the node of the next process that needs to run
+					
+					if(curr.timeStarted == -1){ //if process has not yet been started 
+						curr.startTime(CPUtime); //set start time for process i
+					}
+					
+					CPUtime += curr.runTimeLeft; //increment the CPU by the time the current process needs to run
+					
+					curr.completionTime(CPUtime); //set end time for process with index iRun
+				
+				}
 	}
 	
 	/*
@@ -253,7 +275,9 @@ public class SchedAlgorithms {
 		list.set(j, iNode);
 		
 	}
-	
+	/**
+	 * Prints the data stored in the nodes of the list of processes
+	 */
 	public void print(){
 		
 			System.out.println("\n\nproc     arr      prior      burst          start        end         turnaround   "
@@ -266,10 +290,10 @@ public class SchedAlgorithms {
 		}
 	}
 	
-	public LinkedList<Node> returnList(){
-		return list;
-	}
-	
+	/**
+	 * Does process analysis which finds the turnaround time and wait time, my method of doing this is a little
+	 * awkward, but I think that it is straightforward enough I didn't feel like changing it.
+	 */
 	public void Analyze(){
 		analyze = new Analysis(list);
 	}

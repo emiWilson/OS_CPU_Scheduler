@@ -57,6 +57,24 @@ public class ProcessList implements Queue{
 	public boolean hasNext(Item item){
 		return (item.next != null);
 	}
+	/**
+	 * Adds item to queue in normal (non - priority order), will be used for round robin algorithm
+	 * @param item
+	 */
+	public void enqueue(int item){
+		
+		 Item current = tail;
+	        tail = new Item();
+	        tail.index = item;
+
+	        if (total++ == 0) head = tail;
+	        else current.next = tail;
+		
+	        
+	       tail.priority = LOWEST_PRIORITY;
+	      
+	   
+	}
 	/*
 	 * Add item to queue, but making queue a priority queue
 	 * Lowest priority at tail, highest priority at head

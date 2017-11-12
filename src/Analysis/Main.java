@@ -12,10 +12,10 @@ public class Main {
 		LinkedList<Node> list = read.listBuild();
 		
 		SchedAlgorithms alg = new SchedAlgorithms(list);
-		//alg.FCFS();
+		alg.FCFS();
 		//alg.SJF();
 		
-		alg.Priority();
+		//alg.Priority();
 		//alg.RR();
 		//alg.print();
 		
