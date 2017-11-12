@@ -8,9 +8,7 @@ import SampleFiles.*;
 
 public class Main {
 	public static void main(String [] args){
-
-		
-		SampleReader read = new SampleReader("output"); //data
+		SampleReader read = new SampleReader("data"); //data
 		LinkedList<Node> list = read.listBuild();
 		
 		SchedAlgorithms alg = new SchedAlgorithms(list);
@@ -28,10 +26,9 @@ public class Main {
 	}
 }
 
-/**
- * This class is the modified SampleReader.java file from course files
- *
- */
+
+ // This class is the modified SampleReader.java file from course files
+ 
 class SampleReader
 {
 	DataInputStream dis;
@@ -58,11 +55,7 @@ class SampleReader
 	
 	public LinkedList<Node> listBuild()
 	{
-		/*System.out.println("Running SampleReader.java");
-		System.out.print("Sample File?  ");
-		String sampleFile = SavitchIn.readLineWord();
-		
-		SampleReader sr = new SampleReader("data");*/
+	
 		
 		int process, arrival, priority, burst;
 		LinkedList<Node> list = new LinkedList<Node>();
@@ -135,16 +128,3 @@ class SampleReader
 
 }
 
-/*class Node{
-	int process;
-	int arrival;
-	int priority;
-	int burst;
-	
-	public Node(int proc, int arr, int prior, int bur){
-		process = proc;
-		arrival = arr;
-		priority = prior;
-		burst = bur;
-	}
-}*/

@@ -17,7 +17,7 @@ public class SchedAlgorithms {
 	static int totalTime = 3600000;
 	static int [] avgWait = new int [totalTime / 600]; //there are 600 seconds in ten minutes
 	static int [] avgTurnaround = new int [totalTime /600];
-	static PriorityQueue waitLine = new PriorityQueue();
+//	static PriorityQueue waitLine = new PriorityQueue();
 	static ProcessList queue = new ProcessList();
 	static Analysis analyze;
 	
@@ -95,8 +95,9 @@ public class SchedAlgorithms {
 		CPUtime += curr.arrival; //jump CPU time to time first process arrives
 		curr.startTime(CPUtime); //give the first process a running time
 		curr.setIndex(i);
+		queue.enqueue(i, curr.priority);
 		i++;
-		System.out.println(curr.index + ":Is the first elements priority");
+		
 		//queue.enqueue(0, curr.priority); //push first element into the queue ** Why does this make such a big difference
 		
 		while (i < list.size()){ //while there are still processes in list
@@ -104,18 +105,36 @@ public class SchedAlgorithms {
 			//next process arriving to CPU
 			Node item = list.get(i);
 			item.setIndex(i); //so can re-access item in list
-	
-			if(item.arrival < CPUtime){ //see if item is arriving before the current time
-				//put item in queue
-			
-				System.out.println(item.process + "is in the loop");
-				queue.enqueue(i, item.priority);
+			//current process is done running
+			if (curr.runTimeLeft == 0){
+				curr.completionTime(CPUtime); //give it the time it finished running
+				int deq = queue.dequeue(); //remove element
 				
-				i++; //get next element in next traversal of while loop
+				if(queue.size() != 0){
+					curr = nextProcess(curr, CPUtime);
+				}else{
+					curr = null;
+				}
 			}
-						
+	
+			if(item.arrival == CPUtime){ //see if item is arriving after or at the current time
+				//put item in queue
+				//System.out.println("item added but too early " + CPUtime + " process item " + item.index + " and current is " + curr.index);
+
+				queue.enqueue(i, item.priority);
+				System.out.println("Queue size " + queue.size());
+				i++; //get next element in next traversal of while loop
+				
+				if(curr == null){
+					curr = list.get(queue.getIndex());
+					curr.startTime(CPUtime);
+				}
+			}	
 			//get whatever process is at the end of the priority queue, set as current process
-			curr = nextProcess(curr, CPUtime); 
+			if (queue.size() != 0){
+				curr = nextProcess(curr, CPUtime); 
+
+			}
 			
 			if(curr != null){curr.addTimeRan();} //adjust node curr for running a timestep
 
@@ -124,9 +143,9 @@ public class SchedAlgorithms {
 			
 			
 		}
-
+		System.out.println("In Queue" + queue.toString());
 		//finish any processes still in queue
-		while(queue.size()!= 0){
+		while(queue.size() != 0){
 			i = queue.dequeue(); //get index of next process that needs to run
 			curr = list.get(i); //get the node of the next process that needs to run
 			
@@ -159,29 +178,24 @@ public class SchedAlgorithms {
 		
 		Node next = current;
 		
-		if (current != null){
-			//current process is done running
-			if (current.runTimeLeft == 0){
-				current.completionTime(currentTime); //give it the time it finished running
-				queue.dequeue(); //remove element
-				
-			}
+
+			
 			
 			if(queue.size() != 0){
 				int index = queue.getIndex();//get index of element at head
 				next = list.get(index); //find node with index
-			
 				//if the node has not already been started
 				if(next.timeStarted == -1){
+					System.out.println("Give start time");
 					next.startTime(currentTime); //set start time of process if haven't been started previously
 				}
-			}else{
+			}else{ //if size of queue is 0
 				next = null;
 			}
 			
 		//System.out.println("******* now running process " + next.process + " has time left " + next.runTimeLeft);
 			
-		}
+		
 		
 		return next;
 		
