@@ -90,60 +90,51 @@ public class SchedAlgorithms {
 		int CPUtime = 0;
 		
 		int i = 0; //index of arriving process
-		int iRun = i; //index of process running
 		
 		Node curr = list.get(i); //get first process
-		CPUtime += curr.arrival;
+		CPUtime += curr.arrival; //jump CPU time to time first process arrives
 		curr.startTime(CPUtime); //give the first process a running time
+		curr.setIndex(i);
+		i++;
+		System.out.println(curr.index + ":Is the first elements priority");
+		//queue.enqueue(0, curr.priority); //push first element into the queue ** Why does this make such a big difference
 		
-		while (i < list.size()){
+		while (i < list.size()){ //while there are still processes in list
 			
-			
-			curr = list.get(iRun); //node currently running
-			System.out.println("At beg. " + curr.process +  " and time " + CPUtime);
-			//determine if process is finished running, if so start next process in queue
-			System.out.println(curr.process + " has time left " + curr.runTimeLeft + " and started at " + curr.timeStarted);
-			
-			curr = nextProcess(curr, CPUtime); //get next process if one currently running is done
-			//if process hasn't been started yet, then give it a start time
-			if(curr.timeStarted == -1){
-				curr.startTime(CPUtime);
-			}
-		
-			
-			Node item = list.get(i); //next process arriving to CPU
-			item.setIndex(i);
-			
+			//next process arriving to CPU
+			Node item = list.get(i);
+			item.setIndex(i); //so can re-access item in list
+	
 			if(item.arrival < CPUtime){ //see if item is arriving before the current time
 				//put item in queue
-				//waitLine.putQueue(item, item.priority);
+			
 				System.out.println(item.process + "is in the loop");
 				queue.enqueue(i, item.priority);
 				
 				i++; //get next element in next traversal of while loop
 			}
+						
+			//get whatever process is at the end of the priority queue, set as current process
+			curr = nextProcess(curr, CPUtime); 
 			
-			if(curr!=null){curr.addTimeRan();} //adjust node curr for running a timestep
-		
-			
-			iRun = queue.getIndex();
-			
-			System.out.println(curr.process + " has time left " + curr.runTimeLeft);
-			System.out.println(queue.toString());
-			System.out.println("At end" + curr.process);
+			if(curr != null){curr.addTimeRan();} //adjust node curr for running a timestep
+
 			
 			CPUtime ++; //increment currentTime
 			
+			
 		}
 
-		
+		//finish any processes still in queue
 		while(queue.size()!= 0){
-			iRun = queue.dequeue();
-			curr = list.get(iRun);
+			i = queue.dequeue(); //get index of next process that needs to run
+			curr = list.get(i); //get the node of the next process that needs to run
 			
-			curr.startTime(CPUtime); //set start time for process with index iRun
+			if(curr.timeStarted != -1){ //if process has not yet been started 
+				curr.startTime(CPUtime); //set start time for process i
+			}
 			
-			CPUtime += curr.runTimeLeft;
+			CPUtime += curr.runTimeLeft; //increment the CPU by the time the current process needs to run
 			
 			curr.completionTime(CPUtime); //set end time for process with index iRun
 			
@@ -151,62 +142,45 @@ public class SchedAlgorithms {
 			
 		
 		}
-		
-		
-		
 	
-
-
-		
-		/*while(queue.size()!= 0){
-			iRun = queue.dequeue();
-			curr = list.get(iRun);
-			
-			curr.startTime(CPUtime); //set start time for process with index iRun
-			
-			CPUtime += curr.runTimeLeft;
-			
-			curr.completionTime(CPUtime); //set end time for process with index iRun
-			
-			System.out.println(curr.process + " has time left " + curr.runTimeLeft);
-			
-		
-		}*/
-		
-		
-		
+	//curr = list.get(2);	
+	//System.out.println(curr.process +"    "+ curr.arrival +"    "+ curr.timeStarted);
+	//System.out.println("Queue is: "+ queue.toString());
 	
 	}
 	/**
 	 * If currently running process is finished running then start new process, else continue running current process
 	 * @param current, is the currently running process
-	 * @param currentTime, is the currentTime the simualation is at
+	 * @param currentTime, is the currentTime the simulation is at
 	 * @return returns current if process is not finished running, or is null and will return next process to run if 
 	 * current process is completed running
 	 */
 	public Node nextProcess(Node current, int currentTime){
+		
 		Node next = current;
 		
 		if (current != null){
-			if (current.runTimeLeft == 0){
 			//current process is done running
-			current.completionTime(currentTime); //give it the time it finished running
-
-			queue.dequeue();
-			
-
-			//start next process if process waiting
-			//current = waitLine.peek(); //get next element
-			next = list.get(queue.getIndex());
-			
-			if(next.process == current.process){
-				System.out.println("Same process!!!!!!!!!");
+			if (current.runTimeLeft == 0){
+				current.completionTime(currentTime); //give it the time it finished running
+				queue.dequeue(); //remove element
+				
 			}
 			
-			next.startTime(currentTime); //set start time of process
-			System.out.println("******* now running process " + next.process + " has time left " + next.runTimeLeft);
+			if(queue.size() != 0){
+				int index = queue.getIndex();//get index of element at head
+				next = list.get(index); //find node with index
+			
+				//if the node has not already been started
+				if(next.timeStarted == -1){
+					next.startTime(currentTime); //set start time of process if haven't been started previously
+				}
+			}else{
+				next = null;
 			}
-		 
+			
+		//System.out.println("******* now running process " + next.process + " has time left " + next.runTimeLeft);
+			
 		}
 		
 		return next;
@@ -268,10 +242,13 @@ public class SchedAlgorithms {
 	
 	public void print(){
 		
-			System.out.println("\n\nproc     arr      prior      burst          start        end         turnaround        wait         start ");
+			System.out.println("\n\nproc     arr      prior      burst          start        end         turnaround   "
+					+ "     wait");
 		for(int i = 0; i < list.size(); i++){
 			Node node = list.get(i);
-			System.out.println(node.process + "       " + node.arrival + "        " + node.priority + "           " + node.burst + "               " +node.timeStarted+"           "+ node.timeCompleted + "             " + node.turnaround + "            " + node.wait + "            " + node.timeStarted );
+			System.out.println(node.process + "       " + node.arrival + "        " + node.priority + "           " 
+			+ node.burst + "               " +node.timeStarted+"           "+ node.timeCompleted + "             " 
+					+ node.turnaround + "            " + node.wait );
 		}
 	}
 	

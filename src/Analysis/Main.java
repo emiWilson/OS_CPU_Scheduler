@@ -8,9 +8,9 @@ import SampleFiles.*;
 
 public class Main {
 	public static void main(String [] args){
-		System.out.println("In Main");
+
 		
-		SampleReader read = new SampleReader("data");
+		SampleReader read = new SampleReader("output"); //data
 		LinkedList<Node> list = read.listBuild();
 		
 		SchedAlgorithms alg = new SchedAlgorithms(list);

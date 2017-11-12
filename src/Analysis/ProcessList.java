@@ -25,34 +25,25 @@ public class ProcessList implements Queue{
 		return total == 0;
 	}
 	
-	public void enqueue(int item){
-	
-		 Item current = tail;
-	        tail = new Item();
-	        tail.index = item;
-
-	        if (total++ == 0) head = tail;
-	        else current.next = tail;
-		
-	        
-	       tail.priority = LOWEST_PRIORITY;
-	      
-	   
-	}
 	public Item peek(){
 		return head;
 	}
 	public int getIndex(){
-		if(head == null){return 0;}
+		if(head == null){
+			System.out.println("Queue is empty, be careful!");
+			return -1;
+		}
 		return head.index;
 	}
 	
 	public int dequeue(){
 		  if (total == 0){ return -1;}
-		  	int ele = head.index;
-	        head = head.next;
-	        if (--total == 0) tail = null;
-	        return ele;
+		  
+		  int ele = head.index;
+	      head = head.next;
+	      --total;
+	        
+	      return ele;
 	}
 
 	
